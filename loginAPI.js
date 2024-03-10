@@ -1,5 +1,5 @@
 const clientId = "3061de51036d4f2fa286954bcd47935b"; // Replace with your client ID
-const imageLimit = 20
+const imageLimit = 30
 const imagesUl = document.getElementById('images')
 const imagesUl2 = document.getElementById('images2')
 for (let index = 0; index < imageLimit; index++) {
