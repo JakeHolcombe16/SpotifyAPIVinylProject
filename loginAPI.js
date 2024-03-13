@@ -1,18 +1,20 @@
 const clientId = "3061de51036d4f2fa286954bcd47935b"; // Replace with your client ID
-const imageLimit = 30
+const imageLimit = 9
 const imagesUl = document.getElementById('images')
 const imagesUl2 = document.getElementById('images2')
-for (let index = 0; index < imageLimit; index++) {
-  imagesUl2.insertAdjacentHTML("afterend",`<li><span class="image"></span></li>`)
-  
-}
-imagesUl.style ='display:flex;flex-wrap:wrap;list-style: none;'
+
+
+// for (let index = 0; index < imageLimit; index++) {
+//     imagesUl2.insertAdjacentHTML("afterend",`<li><span class="image"></span></li>`)
+    
+//   }
+// imagesUl.style ='display:flex;flex-wrap:wrap;list-style: none;'
 const params = new URLSearchParams(window.location.search);
 const code = params.get("code");
 
 const loginButton = document.getElementById('login')
-loginButton.addEventListener('click', () => {
-  redirectToAuthCodeFlow(clientId);
+loginButton.addEventListener('click', async () => {
+  await redirectToAuthCodeFlow(clientId);
   loginButton.remove()
 })
 const accessToken = await getAccessToken(clientId, code);
@@ -120,6 +122,7 @@ async function fetchWebApi(endpoint, method, body) {
   return await res.json();
 }
 
+export const topAlbumCovers = []
 
 function populateUI(profile) {
   document.getElementById("displayName").innerText = profile.display_name;
@@ -138,9 +141,10 @@ function populateUI(profile) {
   document.getElementById("topArtists").innerText = topArtists.map((artist) => artist.name).join(', ')
   document.getElementById("topTracks").innerText = topTracks.map((track) => track.name).join(', ')
   const imageElements = document.getElementsByClassName('image');
-
+  
   for (let i = 0; i < imageElements.length && i < topTracks.length; i++) {
     const imageUrl = topTracks[i].album.images[1].url;
+    topAlbumCovers.push(imageUrl)
     imageElements[i].innerHTML = `<img src=${imageUrl}>`;
 }
 

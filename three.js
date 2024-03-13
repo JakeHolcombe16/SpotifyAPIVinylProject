@@ -3,15 +3,17 @@ import * as THREE from 'three'
 import * as dat from 'lil-gui'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import { Font, FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+// import { topAlbumCovers } from './loginAPI'
 // import typefaceFont from 'three/examples/fonts/helvetiker_regular.typeface.json'
 // import gsap from 'gsap'
+
+
 
 /**
  * Font Loader
  */
 const textureLoader = new THREE.TextureLoader()
 const matcapTexture = textureLoader.load('static/textures/8.png')
-const tempAlbumCover = textureLoader.load('static/textures/radiohead.jpg')
 
 const fontLoader = new FontLoader()
 let TextSize = 0.5
@@ -19,7 +21,7 @@ fontLoader.load(
     'static/fonts/Codec_Cold_Trial_ExtraBold.json',
     (font) => {
         const textGeometry = new TextGeometry(
-            'Hello Sigmas',
+            'Hello World',
             {
                 font: font,
                 size: TextSize,
@@ -31,78 +33,101 @@ fontLoader.load(
                 bevelOffset: 0,
                 bevelSegments: 4
             }
-        )
-        textGeometry.center()
-        // textGeometry.position.y = 0
-        textGeometry.computeBoundingBox()
-        const material = new THREE.MeshMatcapMaterial({matcap: matcapTexture })
-        // const color = new THREE.Color(0x0dc1d9)
-        // const material = new THREE.MeshBasicMaterial({color:color})
-        const text = new THREE.Mesh(textGeometry, material)
-        text.position.y = 1.5
-        scene.add(text)
-    })
+            )
+            textGeometry.center()
+            // textGeometry.position.y = 0
+            textGeometry.computeBoundingBox()
+            const material = new THREE.MeshMatcapMaterial({matcap: matcapTexture })
+            // const color = new THREE.Color(0x0dc1d9)
+            // const material = new THREE.MeshBasicMaterial({color:color})
+            const text = new THREE.Mesh(textGeometry, material)
+            text.position.y = 1.5
+            scene.add(text)
+        })
+        
+        
+        /**
+         * Debug
+        */
+       const gui = new dat.GUI()
+       
+       const parameters = {
+           materialColor: '#ffeded'
+        }
+        
+        gui
+        .addColor(parameters, 'materialColor')
+        .onChange( () => {
+            material.color.set(parameters.materialColor)
+            particlesMaterial.color.set(parameters.materialColor)
+        })
+        
+        /**
+         * Base
+        */
+       // Canvas
+       const canvas = document.querySelector('canvas.webgl')
+       
+       // Scene
+       const scene = new THREE.Scene()
+       
+       /**
+        * Objects
+       */
+      const tempAlbumCover = textureLoader.load('static/textures/images/1.jpg')
+      const tempAlbumCover2 = textureLoader.load('static/textures/images/2.jpg')
+      
+      // Texture
+      const gradientTexture = textureLoader.load('static/textures/gradients/3.jpg')
+      gradientTexture.magFilter = THREE.NearestFilter
+      
+      // Material
+      const material = new THREE.MeshToonMaterial({
+          color: parameters.materialColor,
+          gradientMap: gradientTexture,
+          side:THREE.DoubleSide
+        })
+        
+        
+        // Meshes
+        const objectsDistance = 4
+        const albums = []
+        let posY = 0
+        let posX = -2
+        for (let index = 1; index < 10; index++) {
+            const texture = textureLoader.load(`static/textures/images/${index}.jpg`)
+            const geo = new THREE.PlaneGeometry(2/3,2/3)
+            const mat = new THREE.MeshBasicMaterial({map:texture})
+            const mesh = new THREE.Mesh(geo,mat)
+            posX++
+            mesh.position.x = (posX * 2/3)
+            mesh.position.y = posY
+            if (index % 3 == 0) {
+                posY = posY - 2/3
+                posX = -2
+            }
+            scene.add(mesh)
+            albums.push(mesh)
 
-
-/**
- * Debug
- */
-const gui = new dat.GUI()
-
-const parameters = {
-    materialColor: '#ffeded'
+            
 }
-
-gui
-    .addColor(parameters, 'materialColor')
-    .onChange( () => {
-        material.color.set(parameters.materialColor)
-        particlesMaterial.color.set(parameters.materialColor)
-    })
-
-/**
- * Base
- */
-// Canvas
-const canvas = document.querySelector('canvas.webgl')
-
-// Scene
-const scene = new THREE.Scene()
-
-/**
- * Objects
- */
-
-// Texture
-const gradientTexture = textureLoader.load('static/textures/gradients/3.jpg')
-gradientTexture.magFilter = THREE.NearestFilter
-
-// Material
-const material = new THREE.MeshToonMaterial({
-    color: parameters.materialColor,
-    gradientMap: gradientTexture,
-    side:THREE.DoubleSide
-    })
-
-    
-// Meshes
-const objectsDistance = 4
-const mesh1 = new THREE.Mesh(
-    new THREE.TorusGeometry(1, 0.4, 16, 60),
-    material
-)
 const vinylMaterial = new THREE.MeshBasicMaterial({
     map:tempAlbumCover
 })
-const mesh2 = new THREE.Mesh(new THREE.PlaneGeometry(2,2).center(),vinylMaterial)
-mesh2.position.y = -0.5
-scene.add(mesh2)
+const vinylMaterial2 = new THREE.MeshBasicMaterial({
+    map:tempAlbumCover2
+})
+const mesh2 = new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.MeshBasicMaterial({color: 0x000000}))
+// const mesh3 = new THREE.Mesh(new THREE.PlaneGeometry(0.66,0.66),vinylMaterial2)
+mesh2.position.x = 0
+// mesh3.position.set(-2/3,2/3,0.1)
+// scene.add(mesh3)
 
-mesh1.position.y = - objectsDistance * 0
+// mesh1.position.y = - objectsDistance * 0
 
-mesh1.position.x = 0
+// mesh1.position.x = 0
 
-const sectionsMeshes = [ mesh1 ]
+const sectionsMeshes = [ mesh2 ]
 // const sectionsMeshes = [ mesh1, mesh2, mesh3 ]
 
 
@@ -259,10 +284,11 @@ const tick = () =>
 
 
     // animate meshes
-    for (const mesh of sectionsMeshes) {
-        mesh.rotation.x += deltaTime * 0.1
-        mesh.rotation.y += deltaTime * 0.12
-    }
+    // TODO: Fix this to follow the mouse
+    // for (const mesh of sectionsMeshes) {
+    //     mesh.rotation.z += deltaTime * 0.1
+    //     mesh.rotation.y += deltaTime * 0.12
+    // }
 
     // Render
     renderer.render(scene, camera)
