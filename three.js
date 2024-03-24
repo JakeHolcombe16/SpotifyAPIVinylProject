@@ -3,25 +3,34 @@ import * as THREE from 'three'
 import * as dat from 'lil-gui'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import { Font, FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+// import '/loginAPI.js'
 // import { topAlbumCovers } from './loginAPI'
 // import typefaceFont from 'three/examples/fonts/helvetiker_regular.typeface.json'
 // import gsap from 'gsap'
 
-
+// if(TypeError) {
+//     window.location.href = 'index.html'
+// }
 
 /**
  * Font Loader
  */
+const fontLoader = new FontLoader()
+// let name = 'World'
 const textureLoader = new THREE.TextureLoader()
 const matcapTexture = textureLoader.load('static/textures/8.png')
-
-const fontLoader = new FontLoader()
-let TextSize = 0.5
-fontLoader.load(
+const topTrackImages = []
+const loginAPI = import('/loginAPI.js').then((module) => {
+    for (let i = 0; i < module.topTracks.length; i++) {
+        topTrackImages.push(module.topTracks[i].album.images[1]);
+    }
+    const profile = module.profile.display_name
+    let TextSize = 0.5
+    fontLoader.load(
     'static/fonts/Codec_Cold_Trial_ExtraBold.json',
     (font) => {
         const textGeometry = new TextGeometry(
-            'Hello World',
+            `${profile}'s Top Tracks`,
             {
                 font: font,
                 size: TextSize,
@@ -44,6 +53,8 @@ fontLoader.load(
             text.position.y = 1.5
             scene.add(text)
         })
+})
+
         
         
         /**
@@ -94,20 +105,27 @@ fontLoader.load(
         const albums = []
         let posY = 0
         let posX = -2
-        for (let index = 1; index < 10; index++) {
-            const texture = textureLoader.load(`static/textures/images/${index}.jpg`)
+        // loginAPI.then((module) => {
+        //     const topTrackImages = module.topTracks
+        //     console.log(topTrackImages);
+        // })
+        const len = await loginAPI
+        let j = 1
+        for (let i = 0; i < topTrackImages.length; i++) {
+            const texture = textureLoader.load(topTrackImages[i].url)
             const geo = new THREE.PlaneGeometry(2/3,2/3)
             const mat = new THREE.MeshBasicMaterial({map:texture})
             const mesh = new THREE.Mesh(geo,mat)
             posX++
             mesh.position.x = (posX * 2/3)
             mesh.position.y = posY
-            if (index % 3 == 0) {
+            if (j % 3 == 0) {
                 posY = posY - 2/3
                 posX = -2
             }
             scene.add(mesh)
             albums.push(mesh)
+            j++
 
             
 }
@@ -126,8 +144,7 @@ mesh2.position.x = 0
 // mesh1.position.y = - objectsDistance * 0
 
 // mesh1.position.x = 0
-
-const sectionsMeshes = [ mesh2 ]
+const sectionsMeshes = albums
 // const sectionsMeshes = [ mesh1, mesh2, mesh3 ]
 
 
@@ -285,10 +302,17 @@ const tick = () =>
 
     // animate meshes
     // TODO: Fix this to follow the mouse
-    // for (const mesh of sectionsMeshes) {
-    //     mesh.rotation.z += deltaTime * 0.1
-    //     mesh.rotation.y += deltaTime * 0.12
-    // }
+    for (const mesh of sectionsMeshes) {
+        // document.addEventListener('mousemove', function(event) {
+        //     const mouseX = event.clientX;
+        //     const mouseY = event.clientY;
+        //     // mesh.rotation.z += deltaTime * 0.1
+        //     // mesh.rotation.y += deltaTime * 0.12
+        //     // mesh.rotation.z = mouseX*0.001
+        //     // mesh.rotation.x = mouseY*0.001
+        // });
+        // mesh.rotation.y = window.clientY
+    }
 
     // Render
     renderer.render(scene, camera)

@@ -11,28 +11,32 @@ const imagesUl2 = document.getElementById('images2')
 // imagesUl.style ='display:flex;flex-wrap:wrap;list-style: none;'
 const params = new URLSearchParams(window.location.search);
 const code = params.get("code");
-
-const loginButton = document.getElementById('login')
-loginButton.addEventListener('click', async () => {
-  await redirectToAuthCodeFlow(clientId);
-  loginButton.remove()
-})
+// We only need the try except so we can delete the button and have no error on redirect page
+try {
+  const loginButton = document.getElementById('login')
+  loginButton.addEventListener('click', async () => {
+    await redirectToAuthCodeFlow(clientId);
+    loginButton.style.display = 'none'
+  })
+} catch {
+  
+}
 const accessToken = await getAccessToken(clientId, code);
-const profile = await fetchProfile(accessToken);
-const topTracks = await getTopTracks()
-const topArtists = await getTopArtists()
-console.log(topTracks);
-console.log(
-  topTracks?.map(
-    ({name, artists}) =>
-      `${name} by ${artists.map(artist => artist.name).join(', ')}`
-  )
-);
+export const profile = await fetchProfile(accessToken);
+export const topTracks = await getTopTracks()
+export const topArtists = await getTopArtists()
+// console.log(topTracks);
+// console.log(
+//   topTracks?.map(
+//     ({name, artists}) =>
+//       `${name} by ${artists.map(artist => artist.name).join(', ')}`
+//   )
+// );
 
 
-console.log(profile);
+// console.log(profile);
 // console.log(artists);
-populateUI(profile);
+// populateUI(profile);
 
 
 export async function redirectToAuthCodeFlow(clientId) {
@@ -44,7 +48,8 @@ export async function redirectToAuthCodeFlow(clientId) {
   const params = new URLSearchParams();
   params.append("client_id", clientId);
   params.append("response_type", "code");
-  params.append("redirect_uri", "http://localhost:5173/callback");
+  // params.append("redirect_uri", "http://localhost:5173/callback");
+  params.append("redirect_uri", "http://localhost:5173/test.html");
   params.append("scope", "user-read-private user-read-email user-top-read");
   params.append("code_challenge_method", "S256");
   params.append("code_challenge", challenge);
@@ -78,7 +83,8 @@ export async function getAccessToken(clientId, code) {
   params.append("client_id", clientId);
   params.append("grant_type", "authorization_code");
   params.append("code", code);
-  params.append("redirect_uri", "http://localhost:5173/callback"); // TODO: Change to test page
+  // params.append("redirect_uri", "http://localhost:5173/callback"); // TODO: Change to test page
+  params.append("redirect_uri", "http://localhost:5173/test.html");
   params.append("code_verifier", verifier);
 
   const result = await fetch("https://accounts.spotify.com/api/token", {
@@ -111,7 +117,7 @@ async function getTopArtists(){
   )).items;
 }
 async function fetchWebApi(endpoint, method, body) {
-  console.log(accessToken);
+  // console.log(accessToken);
   const res = await fetch(`https://api.spotify.com/${endpoint}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -123,9 +129,9 @@ async function fetchWebApi(endpoint, method, body) {
 }
 
 export const topAlbumCovers = []
-
+/*
 function populateUI(profile) {
-  document.getElementById("displayName").innerText = profile.display_name;
+  // document.getElementById("displayName").innerText = profile.display_name;
   if (profile.images[1]) {
       const profileImage = new Image(400, 400);
       profileImage.src = profile.images[1].url;
@@ -154,4 +160,4 @@ function populateUI(profile) {
 // });
   // .innerText = topTracks.map((track) => track.album.images[0].url)
 
-}
+}*/
