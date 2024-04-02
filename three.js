@@ -1,8 +1,8 @@
 import '/style.css'
 import * as THREE from 'three'
 import * as dat from 'lil-gui'
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
-import { Font, FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+import { TextGeometry } from 'three/src/examples/jsm/geometries/TextGeometry.js'
+import { Font, FontLoader } from 'three/src/examples/jsm/loaders/FontLoader.js'
 // import '/loginAPI.js'
 // import { topAlbumCovers } from './loginAPI'
 // import typefaceFont from 'three/examples/fonts/helvetiker_regular.typeface.json'
@@ -15,15 +15,31 @@ import { Font, FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 /**
  * Font Loader
  */
+const seenAlbums = new Set()
 const fontLoader = new FontLoader()
 // let name = 'World'
 const textureLoader = new THREE.TextureLoader()
 const matcapTexture = textureLoader.load('static/textures/8.png')
-const topTrackImages = []
+let r = 0
+let topTrackImages = []
 const loginAPI = import('/loginAPI.js').then((module) => {
-    for (let i = 0; i < module.topTracks.length; i++) {
-        topTrackImages.push(module.topTracks[i].album.images[1]);
+    while (seenAlbums.size != 9){
+        seenAlbums.add(module.topTracks[r].album.images[1].url)
+        // console.log(seenAlbums.keys());
+        r++
     }
+    topTrackImages = Array.from(seenAlbums)
+    console.log(topTrackImages);
+
+    
+    // for (const url in seenAlbums.keys()) {
+    //     console.log(url);
+    // }
+
+    // for (let i = 0; i < seenAlbums.size; i++) {
+    //     // topTrackImages.push(module.topTracks[i].album.images[1]);
+    //     console.log(seenAlbums[i]);
+    // }
     const profile = module.profile.display_name
     let TextSize = 0.5
     fontLoader.load(
@@ -109,10 +125,11 @@ const loginAPI = import('/loginAPI.js').then((module) => {
         //     const topTrackImages = module.topTracks
         //     console.log(topTrackImages);
         // })
+        // const len = await loginAPI
         const len = await loginAPI
         let j = 1
         for (let i = 0; i < topTrackImages.length; i++) {
-            const texture = textureLoader.load(topTrackImages[i].url)
+            const texture = textureLoader.load(topTrackImages[i])
             const geo = new THREE.PlaneGeometry(2/3,2/3)
             const mat = new THREE.MeshBasicMaterial({map:texture})
             const mesh = new THREE.Mesh(geo,mat)
@@ -150,7 +167,7 @@ const sectionsMeshes = albums
 
 // particles
 // part geometries
-const particlesCount = 200
+const particlesCount = 500
 const position =  new Float32Array(particlesCount * 3)
 
 
@@ -211,7 +228,7 @@ scene.add(cameraGroup)
 
 // Base camera
 const camera = new THREE.PerspectiveCamera(35, sizes.width / sizes.height, 0.1, 100)
-camera.position.z = 6
+camera.position.z = 8
 cameraGroup.add(camera)
 
 /**

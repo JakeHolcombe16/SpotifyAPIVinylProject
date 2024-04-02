@@ -1,5 +1,5 @@
 const clientId = "3061de51036d4f2fa286954bcd47935b"; // Replace with your client ID
-const imageLimit = 9
+const imageLimit = 50
 const imagesUl = document.getElementById('images')
 const imagesUl2 = document.getElementById('images2')
 
@@ -22,9 +22,12 @@ try {
   
 }
 const accessToken = await getAccessToken(clientId, code);
+console.log(accessToken);
 export const profile = await fetchProfile(accessToken);
+console.log(profile);
 export const topTracks = await getTopTracks()
 export const topArtists = await getTopArtists()
+
 // console.log(topTracks);
 // console.log(
 //   topTracks?.map(
@@ -103,7 +106,7 @@ async function fetchProfile() {
   });
 
   return await result.json();
-}
+} 
 async function getTopTracks(){
   // Endpoint reference : https://developer.spotify.com/documentation/web-api/reference/get-users-top-artists-and-tracks
   return (await fetchWebApi(
@@ -116,6 +119,8 @@ async function getTopArtists(){
     `v1/me/top/artists?time_range=long_term&limit=${imageLimit}`, 'GET'
   )).items;
 }
+
+
 async function fetchWebApi(endpoint, method, body) {
   // console.log(accessToken);
   const res = await fetch(`https://api.spotify.com/${endpoint}`, {
