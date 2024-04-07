@@ -1,3 +1,7 @@
+// import dotenv from 'dotenv'
+// dotenv.config()
+// console.log(process.env);
+// const clientId = process.env.SPOTIFY_CLIENT_ID; // Replace with your client ID
 const clientId = "3061de51036d4f2fa286954bcd47935b"; // Replace with your client ID
 const imageLimit = 50
 const imagesUl = document.getElementById('images')
@@ -134,35 +138,3 @@ async function fetchWebApi(endpoint, method, body) {
 }
 
 export const topAlbumCovers = []
-/*
-function populateUI(profile) {
-  // document.getElementById("displayName").innerText = profile.display_name;
-  if (profile.images[1]) {
-      const profileImage = new Image(400, 400);
-      profileImage.src = profile.images[1].url;
-      document.getElementById("avatar").appendChild(profileImage);
-      document.getElementById("imgUrl").innerText = profile.images[1].url;
-  }
-  document.getElementById("id").innerText = profile.id;
-  document.getElementById("email").innerText = profile.email;
-  document.getElementById("uri").innerText = profile.uri;
-  document.getElementById("uri").setAttribute("href", profile.external_urls.spotify);
-  document.getElementById("url").innerText = profile.href;
-  document.getElementById("url").setAttribute("href", profile.href);
-  document.getElementById("topArtists").innerText = topArtists.map((artist) => artist.name).join(', ')
-  document.getElementById("topTracks").innerText = topTracks.map((track) => track.name).join(', ')
-  const imageElements = document.getElementsByClassName('image');
-  
-  for (let i = 0; i < imageElements.length && i < topTracks.length; i++) {
-    const imageUrl = topTracks[i].album.images[1].url;
-    topAlbumCovers.push(imageUrl)
-    imageElements[i].innerHTML = `<img src=${imageUrl}>`;
-}
-
-//   Array.from(document.getElementsByClassName('image')).forEach(element => {
-//     element.innerHTML = topTracks.map((track) => track.album.images[0].url)
-
-// });
-  // .innerText = topTracks.map((track) => track.album.images[0].url)
-
-}*/
