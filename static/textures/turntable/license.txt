@@ -1,0 +1,11 @@
+Model Information:
+* title:	Pioneer PLX-1000 Turntable Ltd. (Remastered)
+* source:	https://sketchfab.com/3d-models/pioneer-plx-1000-turntable-ltd-remastered-147cd49228e24746a6a2b3c45440d989
+* author:	Mateusz Kołakowski (https://sketchfab.com/geppettoo)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Pioneer PLX-1000 Turntable Ltd. (Remastered)" (https://sketchfab.com/3d-models/pioneer-plx-1000-turntable-ltd-remastered-147cd49228e24746a6a2b3c45440d989) by Mateusz Kołakowski (https://sketchfab.com/geppettoo) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

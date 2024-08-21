@@ -1,46 +1,34 @@
 import '/style.css'
 import * as THREE from 'three'
-import * as dat from 'lil-gui'
 import { TextGeometry } from 'three/src/examples/jsm/geometries/TextGeometry.js'
-import { Font, FontLoader } from 'three/src/examples/jsm/loaders/FontLoader.js'
-// import '/loginAPI.js'
-// import { topAlbumCovers } from './loginAPI'
-// import typefaceFont from 'three/examples/fonts/helvetiker_regular.typeface.json'
-// import gsap from 'gsap'
+import { FontLoader } from 'three/src/examples/jsm/loaders/FontLoader.js'
 
-// if(TypeError) {
-//     window.location.href = 'index.html'
-// }
 
 /**
  * Font Loader
  */
 const seenAlbums = new Set()
 const fontLoader = new FontLoader()
-// let name = 'World'
 const textureLoader = new THREE.TextureLoader()
 const matcapTexture = textureLoader.load('static/textures/8.png')
 let r = 0
 let topTrackImages = []
+const topTracks = []
 const loginAPI = import('/loginAPI.js').then((module) => {
     while (seenAlbums.size != 9){
+        // TODO: add songs to page and link them to spotify
+        // seenAlbums.add(`${module.topTracks[r].name}-${module.topTracks[r].album.images[1].url}*${module.topTracks[r].href}`)
         seenAlbums.add(module.topTracks[r].album.images[1].url)
-        // console.log(seenAlbums.keys());
+        topTracks.push(`${module.topTracks[r].name} - ${module.topTracks[r].artists[0].name}`)
         r++
     }
+    
     topTrackImages = Array.from(seenAlbums)
-    console.log(topTrackImages);
+    console.log(seenAlbums);
 
     
-    // for (const url in seenAlbums.keys()) {
-    //     console.log(url);
-    // }
-
-    // for (let i = 0; i < seenAlbums.size; i++) {
-    //     // topTrackImages.push(module.topTracks[i].album.images[1]);
-    //     console.log(seenAlbums[i]);
-    // }
     const profile = module.profile.display_name
+    console.log(module);
     let TextSize = 0.5
     fontLoader.load(
     'static/fonts/Codec_Cold_Trial_ExtraBold.json',
@@ -69,6 +57,8 @@ const loginAPI = import('/loginAPI.js').then((module) => {
             text.position.y = 1.5
             scene.add(text)
         })
+}).catch((error) => {
+    window.location.href = 'index.html'
 })
 
         
@@ -76,18 +66,12 @@ const loginAPI = import('/loginAPI.js').then((module) => {
         /**
          * Debug
         */
-       const gui = new dat.GUI()
+       
        
        const parameters = {
            materialColor: '#ffeded'
         }
         
-        gui
-        .addColor(parameters, 'materialColor')
-        .onChange( () => {
-            material.color.set(parameters.materialColor)
-            particlesMaterial.color.set(parameters.materialColor)
-        })
         
         /**
          * Base
@@ -101,19 +85,13 @@ const loginAPI = import('/loginAPI.js').then((module) => {
        /**
         * Objects
        */
-      const tempAlbumCover = textureLoader.load('static/textures/images/1.jpg')
-      const tempAlbumCover2 = textureLoader.load('static/textures/images/2.jpg')
       
       // Texture
       const gradientTexture = textureLoader.load('static/textures/gradients/3.jpg')
       gradientTexture.magFilter = THREE.NearestFilter
       
       // Material
-      const material = new THREE.MeshToonMaterial({
-          color: parameters.materialColor,
-          gradientMap: gradientTexture,
-          side:THREE.DoubleSide
-        })
+      
         
         
         // Meshes
@@ -121,11 +99,7 @@ const loginAPI = import('/loginAPI.js').then((module) => {
         const albums = []
         let posY = 0
         let posX = -2
-        // loginAPI.then((module) => {
-        //     const topTrackImages = module.topTracks
-        //     console.log(topTrackImages);
-        // })
-        // const len = await loginAPI
+        
         const len = await loginAPI
         let j = 1
         for (let i = 0; i < topTrackImages.length; i++) {
@@ -146,24 +120,9 @@ const loginAPI = import('/loginAPI.js').then((module) => {
 
             
 }
-const vinylMaterial = new THREE.MeshBasicMaterial({
-    map:tempAlbumCover
-})
-const vinylMaterial2 = new THREE.MeshBasicMaterial({
-    map:tempAlbumCover2
-})
-const mesh2 = new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.MeshBasicMaterial({color: 0x000000}))
-// const mesh3 = new THREE.Mesh(new THREE.PlaneGeometry(0.66,0.66),vinylMaterial2)
-mesh2.position.x = 0
-// mesh3.position.set(-2/3,2/3,0.1)
-// scene.add(mesh3)
 
-// mesh1.position.y = - objectsDistance * 0
 
-// mesh1.position.x = 0
 const sectionsMeshes = albums
-// const sectionsMeshes = [ mesh1, mesh2, mesh3 ]
-
 
 // particles
 // part geometries
@@ -195,6 +154,8 @@ scene.add(particles)
 const directionalLight = new THREE.DirectionalLight('#ffffff', 1)
 directionalLight.position.set(1, 1, 0)
 scene.add(directionalLight)
+
+
 
 /**
  * Sizes
@@ -287,19 +248,7 @@ let previousTime = 0
 
 const tick = () =>
 {
-    // const w = window.matchMedia('(max-width: 1000px)')
-    // w.addEventListener('change', () => {
-    //     if (w < 1000) {
-    //         TextSize = 0.25
-    //         scene.remove(text)
-    //         scene.add(text)
-        
-    //     } 
-    //     if (w >= 1000){
-    //         TextSize = 0.5
-    //     }
-        
-    // })
+
 
 
     const elapsedTime = clock.getElapsedTime()
@@ -315,21 +264,6 @@ const tick = () =>
     const parallaxY = - cursor.y * 0.5
     cameraGroup.position.x += (parallaxX - cameraGroup.position.x) * 5 * deltaTime
     cameraGroup.position.y += (parallaxY - cameraGroup.position.y) * 5 * deltaTime
-
-
-    // animate meshes
-    // TODO: Fix this to follow the mouse
-    for (const mesh of sectionsMeshes) {
-        // document.addEventListener('mousemove', function(event) {
-        //     const mouseX = event.clientX;
-        //     const mouseY = event.clientY;
-        //     // mesh.rotation.z += deltaTime * 0.1
-        //     // mesh.rotation.y += deltaTime * 0.12
-        //     // mesh.rotation.z = mouseX*0.001
-        //     // mesh.rotation.x = mouseY*0.001
-        // });
-        // mesh.rotation.y = window.clientY
-    }
 
     // Render
     renderer.render(scene, camera)

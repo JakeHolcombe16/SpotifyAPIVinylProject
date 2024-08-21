@@ -1,11 +1,6 @@
-// import dotenv from 'dotenv'
-// dotenv.config()
-// console.log(process.env);
-// const clientId = process.env.SPOTIFY_CLIENT_ID; // Replace with your client ID
-const clientId = "3061de51036d4f2fa286954bcd47935b"; // Replace with your client ID
+const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID
 const imageLimit = 50
-const imagesUl = document.getElementById('images')
-const imagesUl2 = document.getElementById('images2')
+const url = "http://localhost:5173/display.html"
 
 
 // for (let index = 0; index < imageLimit; index++) {
@@ -26,25 +21,9 @@ try {
   
 }
 const accessToken = await getAccessToken(clientId, code);
-console.log(accessToken);
 export const profile = await fetchProfile(accessToken);
-console.log(profile);
 export const topTracks = await getTopTracks()
 export const topArtists = await getTopArtists()
-
-// console.log(topTracks);
-// console.log(
-//   topTracks?.map(
-//     ({name, artists}) =>
-//       `${name} by ${artists.map(artist => artist.name).join(', ')}`
-//   )
-// );
-
-
-// console.log(profile);
-// console.log(artists);
-// populateUI(profile);
-
 
 export async function redirectToAuthCodeFlow(clientId) {
   const verifier = generateCodeVerifier(128);
@@ -56,7 +35,7 @@ export async function redirectToAuthCodeFlow(clientId) {
   params.append("client_id", clientId);
   params.append("response_type", "code");
   // params.append("redirect_uri", "http://localhost:5173/callback");
-  params.append("redirect_uri", "http://localhost:5173/test.html");
+  params.append("redirect_uri", url);
   params.append("scope", "user-read-private user-read-email user-top-read");
   params.append("code_challenge_method", "S256");
   params.append("code_challenge", challenge);
@@ -91,7 +70,7 @@ export async function getAccessToken(clientId, code) {
   params.append("grant_type", "authorization_code");
   params.append("code", code);
   // params.append("redirect_uri", "http://localhost:5173/callback"); // TODO: Change to test page
-  params.append("redirect_uri", "http://localhost:5173/test.html");
+  params.append("redirect_uri", url);
   params.append("code_verifier", verifier);
 
   const result = await fetch("https://accounts.spotify.com/api/token", {

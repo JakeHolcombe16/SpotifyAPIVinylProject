@@ -1,23 +1,20 @@
 import '/style.css'
 import * as THREE from 'three'
-import * as dat from 'lil-gui'
 import gsap from 'gsap'
+import { GLTFLoader } from 'three/src/examples/jsm/Addons.js'
+import { TextGeometry } from 'three/src/examples/jsm/geometries/TextGeometry.js'
+import { FontLoader } from 'three/src/examples/jsm/loaders/FontLoader.js'
+
 
 /**
  * Debug
  */
-const gui = new dat.GUI()
+
 
 const parameters = {
-    materialColor: '#ffeded'
+    materialColor: '#ffeded',
 }
 
-gui
-    .addColor(parameters, 'materialColor')
-    .onChange( () => {
-        material.color.set(parameters.materialColor)
-        particlesMaterial.color.set(parameters.materialColor)
-    })
 
 /**
  * Base
@@ -33,59 +30,81 @@ const scene = new THREE.Scene()
  */
 
 // Texture
+const sectionsMeshes = []
 const textureLoader = new THREE.TextureLoader()
+const gltfload = new GLTFLoader()
 const gradientTexture = textureLoader.load('/textures/gradients/3.jpg')
+// const vinylTexture = textureLoader.load('static/textures/turntable/textures/chrome.CHINCHE_normal.jpeg')
 gradientTexture.magFilter = THREE.NearestFilter
+let turntable
+gltfload.load('static/textures/turntable/scene.gltf', (object) => {
+    turntable = object.scene
+    turntable.position.set(0.5, -0.1, 4.5)
+    scene.add(turntable)
+    sectionsMeshes.push(turntable)
+})
 
 // Material
-const material = new THREE.MeshToonMaterial({
-    color: parameters.materialColor,
-    gradientMap: gradientTexture
+// const material = new THREE.MeshToonMaterial({
+//     color: parameters.materialColor,
+//     gradientMap: gradientTexture
+//     })
+const fontLoader = new FontLoader()
+const matcapTexture = textureLoader.load('static/textures/8.png')
+let TextSize = 0.25
+fontLoader.load(
+'static/fonts/Codec_Cold_Trial_ExtraBold.json',
+(font) => {
+    const textGeometry = new TextGeometry(
+        "Discover Your Spotify Vinyl",
+        {
+            font: font,
+            size: TextSize,
+            height: 0.2,
+            curveSegments:5,
+            bevelEnabled: true,
+            bevelThickness: 0.03,
+            bevelSize: 0.02,
+            bevelOffset: 0,
+            bevelSegments: 4
+        }
+        )
+        // TODO: Add top tracks to text
+        // for(let i = 0; i < topTracks.length; i++) {
+        //     const songGeometry = new TextGeometry(`${topTracks[i].name} by ${topTracks[i].artists.map(artist => artist.name).join(', ')}`)
+        //     scene.add(songGeometry)
+        // }
+        const songGeometry = new TextGeometry(``)
+        textGeometry.center()
+        // textGeometry.position.y = 0
+        textGeometry.computeBoundingBox()
+        const material = new THREE.MeshMatcapMaterial({matcap: matcapTexture })
+        // const color = new THREE.Color(0x0dc1d9)
+        // const material = new THREE.MeshBasicMaterial({color:color})
+        const text = new THREE.Mesh(textGeometry, material)
+        text.position.y = 1.5
+        scene.add(text)
     })
-
+    
     
 // Meshes
 const objectsDistance = 4
-const mesh1 = new THREE.Mesh(
-    new THREE.BoxGeometry(.05, 1, 1),
-    new THREE.MeshBasicMaterial({ color: 'blue' }) //
-)
-const mesh2 = new THREE.Mesh(
-    new THREE.ConeGeometry(1, 2, 32),
-    material
-)
-const mesh3 = new THREE.Mesh(
-    new THREE.TorusKnotGeometry(0.8, 0.35, 100, 16),
-    material
-)
-
-mesh1.position.y = - objectsDistance * 0
-mesh2.position.y = - objectsDistance * 1
-mesh3.position.y = - objectsDistance * 2
-
-mesh1.position.x = 2
-mesh2.position.x = - 2
-mesh3.position.x = 2
-
-scene.add(mesh1, mesh2, mesh3)
-
-const sectionsMeshes = [ mesh1, mesh2, mesh3 ]
-
 
 // particles
 // part geometries
-const particlesCount = 200
+const particlesCount = 500
 const position =  new Float32Array(particlesCount * 3)
 
 
 for (let i = 0; i < particlesCount; i++) {
     position[i * 3 + 0] = (Math.random() - 0.5) * 10
-    position[i * 3 + 1] = objectsDistance * 0.5  - Math.random() * objectsDistance * sectionsMeshes.length
+    position[i * 3 + 1] = objectsDistance * 0.5  - Math.random() * objectsDistance
     position[i * 3 + 2] = (Math.random() - 0.5) * 10
 }
 
 const particlesGeometry = new THREE.BufferGeometry()
 particlesGeometry.setAttribute('position', new THREE.BufferAttribute(position, 3))
+
 
 // Material 
 const particlesMaterial = new THREE.PointsMaterial({
@@ -100,7 +119,7 @@ scene.add(particles)
 // Lights
 
 const directionalLight = new THREE.DirectionalLight('#ffffff', 1)
-directionalLight.position.set(1, 1, 0)
+
 scene.add(directionalLight)
 
 /**
@@ -149,30 +168,6 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-// Scroll
-let scrollY = window.scrollY
-let currentSection = 0
-
-window.addEventListener('scroll', () => {
-    scrollY = window.scrollY
-
-    const newSection = Math.round(scrollY / sizes.height)
-    if(newSection != currentSection) {
-        currentSection = newSection
-
-        gsap.to (
-            sectionsMeshes[currentSection].rotation, {
-                duration: 1.5, 
-                ease: 'power2.inOut',
-                x: '+=6',
-                y: '+=3',
-                z: '+= 1.5'
-            }
-        )
-    }
-
-
-})
 
 // Cursor
 const cursor = {}
@@ -188,6 +183,7 @@ window.addEventListener('mousemove', (event) => {
  */
 const clock = new THREE.Clock()
 let previousTime = 0
+
 
 const tick = () =>
 {
@@ -208,8 +204,13 @@ const tick = () =>
 
     // animate meshes
     for (const mesh of sectionsMeshes) {
-        mesh.rotation.x += deltaTime * 0.1
-        mesh.rotation.y += deltaTime * 0.12
+        // mesh.rotation.x += deltaTime * 0.1
+        mesh.rotation.x = 0.75
+        mesh.rotation.z = 0.3* ( 1 +  Math.sin( elapsedTime ) );
+        // if(mesh.rotation.z > 1.0) {
+        //     mesh.rotation.z -= deltaTime * 0.1
+        // }
+        // console.log(mesh.rotation.z);
     }
 
     // Render
