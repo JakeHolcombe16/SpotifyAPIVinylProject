@@ -14,6 +14,7 @@ const matcapTexture = textureLoader.load('static/textures/8.png')
 let r = 0
 let topTrackImages = []
 const topTracks = []
+const clickableTexts = [] // Array to store clickable text objects
 const loginAPI = import('/loginAPI.js').then((module) => {
     while (seenAlbums.size != 9){
         // TODO: add songs to page and link them to spotify
@@ -55,10 +56,68 @@ const loginAPI = import('/loginAPI.js').then((module) => {
             // const material = new THREE.MeshBasicMaterial({color:color})
             const text = new THREE.Mesh(textGeometry, material)
             text.position.y = 1.5
+
+            for (let index = 0; index < topTracks.length; index++) {
+                const albumText = new TextGeometry(
+                    `${topTracks[index]}`,
+                    {
+                        font: font,
+                        size: 0.1,
+                        height: 0.1,
+                        curveSegments:5,
+                        bevelEnabled: true,
+                        bevelThickness: 0.03,
+                        bevelSize: 0.02,
+                        bevelOffset: 0,
+                        bevelSegments: 4
+                    }
+                    )
+                const material = new THREE.MeshMatcapMaterial({matcap: matcapTexture })
+                const text = new THREE.Mesh(albumText, material)
+
+                text.position.y = (2 - (index * 0.2)) - 1.7
+                text.position.x = 1.5
+                text.position.z = 0
+                // Store the text object and its associated URL
+
+                clickableTexts.push({ object: text, url: module.topTracks[index].external_urls.spotify })
+                scene.add(text)
+            }
+
             scene.add(text)
         })
 }).catch((error) => {
     window.location.href = 'index.html'
+})
+
+// Raycaster
+// Raycaster setup
+const raycaster = new THREE.Raycaster()
+const mouse = new THREE.Vector2()
+
+// Event listener for mouse clicks
+window.addEventListener('click', (event) => {
+    // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+
+    // Update the raycaster with the camera and mouse position
+    raycaster.setFromCamera(mouse, camera)
+
+    // Calculate objects intersecting the raycaster
+    const intersects = raycaster.intersectObjects(clickableTexts.map(item => item.object))
+
+    if (intersects.length > 0) {
+        // Get the first intersected object
+        const intersectedObject = intersects[0].object
+
+        // Find the associated URL
+        const clickedText = clickableTexts.find(item => item.object === intersectedObject)
+        if (clickedText) {
+            // Redirect to the URL
+            window.open(clickedText.url, '_blank')
+        }
+    }
 })
 
         
@@ -107,6 +166,8 @@ const loginAPI = import('/loginAPI.js').then((module) => {
             const geo = new THREE.PlaneGeometry(2/3,2/3)
             const mat = new THREE.MeshBasicMaterial({map:texture})
             const mesh = new THREE.Mesh(geo,mat)
+
+            
             posX++
             mesh.position.x = (posX * 2/3)
             mesh.position.y = posY
@@ -120,6 +181,8 @@ const loginAPI = import('/loginAPI.js').then((module) => {
 
             
 }
+
+
 
 
 const sectionsMeshes = albums
